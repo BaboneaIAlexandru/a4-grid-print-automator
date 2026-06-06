@@ -19,7 +19,7 @@ class App(ctk.CTk):
         self.current_image_path=None
         self.final_canvas=None
 
-        self.copy_count_values=["2","4","6"]
+        self.copy_count_values=["2","4","6","8"]
         
         self.setup_ui()
 
@@ -31,7 +31,7 @@ class App(ctk.CTk):
         self.frame_left.grid_columnconfigure(0,weight=1)
         self.frame_left.grid_columnconfigure(1,weight=1)
 
-        self.frame_right=ctk.CTkFrame(self,fg_color="gray15",width=320,height=480)
+        self.frame_right=ctk.CTkFrame(self,fg_color=("#bebebe","gray15"),width=320,height=480)
         self.frame_right.pack(side="right",padx=20,pady=20)
         self.frame_right.pack_propagate(False)
 
@@ -51,13 +51,19 @@ class App(ctk.CTk):
         self.checkbox_rotate=ctk.CTkCheckBox(self.frame_left,text="Rotate original image 90°",command=self.render_preview)
         self.checkbox_rotate.grid(row=3,column=0,columnspan=2,sticky="w",pady=30)
 
+        self.checkbox_grayscale=ctk.CTkCheckBox(self.frame_left,text="Grayscale",command=self.render_preview)
+        self.checkbox_grayscale.grid(row=4,column=0,columnspan=2,sticky="w")
+
+        self.checkbox_guidelines=ctk.CTkCheckBox(self.frame_left,text="Show cut guidelines",command=self.render_preview)
+        self.checkbox_guidelines.grid(row=5,column=0,columnspan=2,sticky="w",pady=30)
+
         self.button_save_file=ctk.CTkButton(self.frame_left,text="Save File",width=120,state="disabled",command=self.save_file)
-        self.button_save_file.grid(row=4,column=0,pady=170,sticky="w")
+        self.button_save_file.grid(row=6,column=0,pady=62,sticky="w")
 
         self.button_print=ctk.CTkButton(self.frame_left,text="Print",width=120,state="disabled",command=self.print_image)
-        self.button_print.grid(row=4,column=1,pady=170,sticky="e")
+        self.button_print.grid(row=6,column=1,pady=62,sticky="e")
 
-        self.label_preview=ctk.CTkLabel(self.frame_right,text="No image currently loaded",fg_color="gray20",width=280,height=396,corner_radius=0)
+        self.label_preview=ctk.CTkLabel(self.frame_right,text="No image currently loaded",fg_color=("#cfcfcf","gray20"),text_color=("#000000","#ffffff"),width=280,height=396,corner_radius=0)
         self.label_preview.pack(expand=True)
 
     def render_preview(self,*args):
@@ -69,8 +75,14 @@ class App(ctk.CTk):
                         
             copies=int(self.combobox_choose_copy_count.get())
             rotate=bool(self.checkbox_rotate.get())
+            grayscale=bool(self.checkbox_grayscale.get())
+            guidelines=bool(self.checkbox_guidelines.get())
             
-            self.final_canvas=process_image(self.current_image_path,copies,rotate)
+            self.final_canvas=process_image(self.current_image_path,copies,rotate,guidelines)
+
+            if grayscale:
+                self.final_canvas=self.final_canvas.convert("L")
+                self.final_canvas=self.final_canvas.convert("RGB")
 
             preview_w,preview_h=280,396
             canvas_preview=self.final_canvas.resize((preview_w,preview_h),Image.Resampling.LANCZOS)
