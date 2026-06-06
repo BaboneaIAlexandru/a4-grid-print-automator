@@ -1,7 +1,7 @@
 import os
-from PIL import Image,ImageOps
+from PIL import Image,ImageOps,ImageDraw
 
-def process_image(image_path,copy_count,rotate):
+def process_image(image_path,copy_count,rotate,show_guidelines):
     
     img=Image.open(image_path)
 
@@ -27,6 +27,9 @@ def process_image(image_path,copy_count,rotate):
     elif copy_count==6:
         limit_w=a4_w//2
         limit_h=a4_h//3
+    elif copy_count==8:
+        limit_w=a4_w//2
+        limit_h=a4_h//4
 
     w_ratio=limit_w/img_w
     h_ratio=limit_h/img_h
@@ -48,6 +51,8 @@ def process_image(image_path,copy_count,rotate):
         rows,columns=2,2
     elif copy_count==6:
         rows,columns=3,2
+    elif copy_count==8:
+        rows,columns=4,2
 
     for row in range(rows):
         for column in range(columns):
@@ -57,4 +62,18 @@ def process_image(image_path,copy_count,rotate):
 
             canvas.paste(img,(x_pos,y_pos))
     
+    if show_guidelines:
+
+        draw=ImageDraw.Draw(canvas)
+        guideline_color="#848484"
+        guideline_w=3
+
+        for column in range(1,columns):
+            x=column*limit_w
+            draw.line([(x,0),(x,a4_h)],fill=guideline_color,width=guideline_w)
+        
+        for row in range(1,rows):
+            y=row*limit_h
+            draw.line([(0,y),(a4_w,y)],fill=guideline_color,width=guideline_w)
+
     return canvas
